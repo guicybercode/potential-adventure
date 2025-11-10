@@ -1,4 +1,4 @@
-use rustler::{Env, NifResult};
+use rustler::{Env, NifResult, Error};
 use rustler::resource::ResourceArc;
 use std::sync::Mutex;
 
@@ -46,7 +46,7 @@ fn aggregate_trades(
 ) -> NifResult<String> {
     let trades: Vec<aggregation::Trade> = match serde_json::from_str(&trades_json) {
         Ok(t) => t,
-        Err(e) => return Err(rustler::Error::BadArg(format!("Invalid JSON: {}", e))),
+        Err(e) => return Err(Error::BadArg(format!("Invalid JSON: {}", e))),
     };
 
     let mut aggregator = resource.inner.lock().unwrap();
@@ -63,7 +63,8 @@ fn aggregate_trades(
     aggregator.cleanup_old_windows(current_time, 10);
 
     let mut results = Vec::new();
-    for (key, _) in aggregator.windows.iter() {
+    let windows_keys: Vec<String> = aggregator.get_windows_keys();
+    for key in windows_keys {
         if let Some((symbol, ts_str)) = key.rsplit_once('_') {
             if let Ok(window_start) = ts_str.parse::<i64>() {
                 if let Some(ohlc) = aggregator.get_ohlc(symbol, window_start) {
@@ -75,7 +76,7 @@ fn aggregate_trades(
 
     match serde_json::to_string(&results) {
         Ok(json) => Ok(json),
-        Err(e) => Err(rustler::Error::BadArg(format!("Serialization error: {}", e))),
+        Err(e) => Err(Error::BadArg(format!("Serialization error: {}", e))),
     }
 }
 
@@ -94,7 +95,7 @@ fn detect_anomalies(
 ) -> NifResult<String> {
     let trade: aggregation::Trade = match serde_json::from_str(&trade_json) {
         Ok(t) => t,
-        Err(e) => return Err(rustler::Error::BadArg(format!("Invalid JSON: {}", e))),
+        Err(e) => return Err(Error::BadArg(format!("Invalid JSON: {}", e))),
     };
 
     let mut detector = resource.inner.lock().unwrap();
@@ -102,6 +103,6 @@ fn detect_anomalies(
 
     match serde_json::to_string(&result) {
         Ok(json) => Ok(json),
-        Err(e) => Err(rustler::Error::BadArg(format!("Serialization error: {}", e))),
+        Err(e) => Err(Error::BadArg(format!("Serialization error: {}", e))),
     }
 }

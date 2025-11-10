@@ -52,10 +52,10 @@ impl SlidingWindowAggregator {
             return None;
         }
 
-        let mut open = trades[0].price;
+        let open = trades[0].price;
         let mut high = trades[0].price;
         let mut low = trades[0].price;
-        let mut close = trades[trades.len() - 1].price;
+        let close = trades[trades.len() - 1].price;
         let mut volume = 0.0;
 
         for trade in trades {
@@ -90,6 +90,10 @@ impl SlidingWindowAggregator {
             }
             false
         });
+    }
+
+    pub fn get_windows_keys(&self) -> Vec<String> {
+        self.windows.keys().cloned().collect()
     }
 }
 
