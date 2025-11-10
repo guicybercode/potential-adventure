@@ -63,7 +63,7 @@ config :phoenix, :json_library, Jason
 
 config :rustler, :crates, [
   rust_processor: [
-    path: "native/rust_processor",
+    path: Path.expand("../../native/rust_processor", __DIR__),
     mode: :release
   ]
 ]
