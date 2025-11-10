@@ -46,7 +46,22 @@ A high-performance real-time data processing pipeline combining Elixir, Rust, an
 - Docker and Docker Compose
 - Kafka (or use Docker Compose)
 
-## Quick Start with Docker
+## Quick Start
+
+### 🚀 Using Scripts (Easiest Way)
+
+```bash
+# Start everything (Docker + Phoenix)
+./start.sh
+
+# Check status of all services
+./status.sh
+
+# Stop everything
+./stop.sh
+```
+
+### 🐳 Using Docker Compose
 
 ```bash
 docker-compose up -d
