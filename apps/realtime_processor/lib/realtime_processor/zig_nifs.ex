@@ -1,5 +1,18 @@
 defmodule ZigNifs do
-  use Zigler, compiler: :native, otp_app: :realtime_processor
+  @moduledoc false
+  
+  def parse_fix_message(_message), do: :erlang.nif_error(:nif_not_loaded)
+  def calculate_checksum(_data), do: :erlang.nif_error(:nif_not_loaded)
+  
+  @on_load :load_nifs
+
+  def load_nifs do
+    :ok
+  end
+end
+
+defmodule ZigNifs.Impl do
+  use Zigler, otp_app: :realtime_processor
 
   ~Z"""
   const std = @import("std");
