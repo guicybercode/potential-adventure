@@ -1,4 +1,4 @@
-use rustler::{Env, NifResult, Error, Term};
+use rustler::{Env, NifResult, Error};
 use rustler::resource::ResourceArc;
 use std::sync::Mutex;
 
@@ -47,9 +47,8 @@ fn aggregate_trades(
 ) -> NifResult<String> {
     let trades: Vec<aggregation::Trade> = match serde_json::from_str(&trades_json) {
         Ok(t) => t,
-        Err(e) => {
-            let error_msg = format!("Invalid JSON: {}", e);
-            return Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))));
+        Err(_e) => {
+            return Err(Error::RaiseTerm(Box::new("invalid_json")));
         }
     };
 
@@ -80,9 +79,8 @@ fn aggregate_trades(
 
     match serde_json::to_string(&results) {
         Ok(json) => Ok(json),
-        Err(e) => {
-            let error_msg = format!("Serialization error: {}", e);
-            Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))))
+        Err(_e) => {
+            Err(Error::RaiseTerm(Box::new("serialization_error")))
         }
     }
 }
@@ -103,9 +101,8 @@ fn detect_anomalies(
 ) -> NifResult<String> {
     let trade: aggregation::Trade = match serde_json::from_str(&trade_json) {
         Ok(t) => t,
-        Err(e) => {
-            let error_msg = format!("Invalid JSON: {}", e);
-            return Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))));
+        Err(_e) => {
+            return Err(Error::RaiseTerm(Box::new("invalid_json")));
         }
     };
 
@@ -114,9 +111,8 @@ fn detect_anomalies(
 
     match serde_json::to_string(&result) {
         Ok(json) => Ok(json),
-        Err(e) => {
-            let error_msg = format!("Serialization error: {}", e);
-            Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))))
+        Err(_e) => {
+            Err(Error::RaiseTerm(Box::new("serialization_error")))
         }
     }
 }
