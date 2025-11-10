@@ -41,7 +41,6 @@ fn create_aggregator(window_size_ms: i64) -> NifResult<ResourceArc<AggregatorRes
 
 #[rustler::nif]
 fn aggregate_trades(
-    _env: Env,
     resource: ResourceArc<AggregatorResource>,
     trades_json: String,
 ) -> NifResult<String> {
@@ -95,7 +94,6 @@ fn create_detector(threshold: f64, max_history: usize) -> NifResult<ResourceArc<
 
 #[rustler::nif]
 fn detect_anomalies(
-    _env: Env,
     resource: ResourceArc<DetectorResource>,
     trade_json: String,
 ) -> NifResult<String> {
