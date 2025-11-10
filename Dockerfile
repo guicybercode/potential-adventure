@@ -1,6 +1,6 @@
 FROM elixir:1.17-alpine AS builder
 
-RUN apk add --no-cache build-base git rust cargo zig
+RUN apk add --no-cache build-base git rust cargo zig cmake
 
 WORKDIR /app
 
