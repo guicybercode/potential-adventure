@@ -1,0 +1,91 @@
+stages:
+  - format
+  - lint
+  - test
+  - benchmark
+  - build
+
+variables:
+  ELIXIR_VERSION: "1.17"
+  OTP_VERSION: "26.0"
+  RUST_VERSION: "stable"
+  ZIG_VERSION: "0.13.0"
+
+.elixir_setup: &elixir_setup
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq build-essential
+    - asdf plugin add elixir || true
+    - asdf plugin add erlang || true
+    - asdf install erlang $OTP_VERSION
+    - asdf install elixir $ELIXIR_VERSION
+    - asdf global elixir $ELIXIR_VERSION
+    - asdf global erlang $OTP_VERSION
+    - mix local.hex --force
+    - mix local.rebar --force
+
+format:
+  stage: format
+  image: ubuntu:22.04
+  <<: *elixir_setup
+  script:
+    - apt-get install -y -qq rustc cargo
+    - curl -L https://ziglang.org/download/$ZIG_VERSION/zig-linux-x86_64-$ZIG_VERSION.tar.xz | tar -xJ
+    - export PATH=$PATH:$(pwd)/zig-linux-x86_64-$ZIG_VERSION
+    - mix deps.get
+    - mix format --check-formatted
+    - cd native/rust_processor && cargo fmt -- --check
+    - cd native/zig_nifs && zig fmt --check .
+
+lint:
+  stage: lint
+  image: ubuntu:22.04
+  <<: *elixir_setup
+  script:
+    - mix deps.get
+    - mix credo --strict || true
+
+test:
+  stage: test
+  image: ubuntu:22.04
+  <<: *elixir_setup
+  services:
+    - name: confluentinc/cp-kafka:latest
+      alias: kafka
+  variables:
+    KAFKA_BROKERS: "kafka:9092"
+  script:
+    - apt-get install -y -qq rustc cargo
+    - curl -L https://ziglang.org/download/$ZIG_VERSION/zig-linux-x86_64-$ZIG_VERSION.tar.xz | tar -xJ
+    - export PATH=$PATH:$(pwd)/zig-linux-x86_64-$ZIG_VERSION
+    - mix deps.get
+    - mix compile
+    - mix test
+    - cd native/rust_processor && cargo test
+
+benchmark:
+  stage: benchmark
+  image: ubuntu:22.04
+  <<: *elixir_setup
+  script:
+    - apt-get install -y -qq rustc cargo
+    - curl -L https://ziglang.org/download/$ZIG_VERSION/zig-linux-x86_64-$ZIG_VERSION.tar.xz | tar -xJ
+    - export PATH=$PATH:$(pwd)/zig-linux-x86_64-$ZIG_VERSION
+    - mix deps.get
+    - mix compile
+    - mix run benchmark/run_benchmarks.exs || true
+  artifacts:
+    paths:
+      - benchmark/results.md
+    expire_in: 1 week
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t elixir-rust-zig:latest .
+  only:
+    - main
+    - master
+
