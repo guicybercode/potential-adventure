@@ -25,6 +25,7 @@ struct DetectorResource {
     inner: Mutex<anomaly::ZScoreDetector>,
 }
 
+#[allow(non_local_definitions)]
 fn on_load(_env: Env, _info: rustler::Term) -> bool {
     rustler::resource!(AggregatorResource, _env);
     rustler::resource!(DetectorResource, _env);
