@@ -51,22 +51,10 @@ defmodule RealtimeProcessorWeb.Telemetry do
       summary("vm.total_run_queue_lengths.total"),
       summary("vm.total_run_queue_lengths.cpu"),
       summary("vm.total_run_queue_lengths.io"),
-      counter("realtime_processor.messages.total",
-        tags: [:topic],
-        description: "Total messages processed"
-      ),
-      counter("realtime_processor.anomalies.total",
-        tags: [:symbol],
-        description: "Total anomalies detected"
-      ),
-      histogram("realtime_processor.batch.duration",
-        unit: {:native, :microsecond},
-        description: "Batch processing duration"
-      ),
-      histogram("realtime_processor.message.duration",
-        unit: {:native, :microsecond},
-        description: "Message processing duration"
-      )
+      counter("realtime_processor.batch.processed.duration"),
+      counter("realtime_processor.batch.processed.count"),
+      counter("realtime_processor.anomaly.detected.count"),
+      counter("realtime_processor.message.processed.duration")
     ]
   end
 
