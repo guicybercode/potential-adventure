@@ -2,6 +2,8 @@
 
 A high-performance real-time data processing pipeline combining Elixir, Rust, and Zig for processing financial trading data from Kafka with full observability and fault tolerance.
 
+> 📖 **New here?** Check the [Quick Start Guide](QUICK_START.md) for the easiest way to get started!
+
 ## Architecture Overview
 
 ```
