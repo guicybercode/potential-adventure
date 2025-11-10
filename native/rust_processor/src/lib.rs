@@ -41,6 +41,7 @@ fn create_aggregator(window_size_ms: i64) -> NifResult<ResourceArc<AggregatorRes
 
 #[rustler::nif]
 fn aggregate_trades(
+    env: Env,
     resource: ResourceArc<AggregatorResource>,
     trades_json: String,
 ) -> NifResult<String> {
@@ -48,7 +49,7 @@ fn aggregate_trades(
         Ok(t) => t,
         Err(e) => {
             let error_msg = format!("Invalid JSON: {}", e);
-            return Err(Error::Term(Box::new(error_msg)));
+            return Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))));
         }
     };
 
@@ -81,7 +82,7 @@ fn aggregate_trades(
         Ok(json) => Ok(json),
         Err(e) => {
             let error_msg = format!("Serialization error: {}", e);
-            Err(Error::Term(Box::new(error_msg)))
+            Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))))
         }
     }
 }
@@ -96,6 +97,7 @@ fn create_detector(threshold: f64, max_history: usize) -> NifResult<ResourceArc<
 
 #[rustler::nif]
 fn detect_anomalies(
+    env: Env,
     resource: ResourceArc<DetectorResource>,
     trade_json: String,
 ) -> NifResult<String> {
@@ -103,7 +105,7 @@ fn detect_anomalies(
         Ok(t) => t,
         Err(e) => {
             let error_msg = format!("Invalid JSON: {}", e);
-            return Err(Error::Term(Box::new(error_msg)));
+            return Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))));
         }
     };
 
@@ -114,7 +116,7 @@ fn detect_anomalies(
         Ok(json) => Ok(json),
         Err(e) => {
             let error_msg = format!("Serialization error: {}", e);
-            Err(Error::Term(Box::new(error_msg)))
+            Err(Error::Term(Box::new(env.string(&error_msg).to_term(env))))
         }
     }
 }
